@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Title</title>
+</head>
+<body>
+<div class="center">
+<h1>Welcome to MBANK!<h1>
+<h3>Insert bank account number: <input id="accountNr"></h3>
+<h3>Initial balance, €: <input id="balance" value="0"></h3>
+<button id="createAccountButton">Open new bank account</button>
+</div>
+<script type="text/javascript">
+    let newAccountNr = document.getElementById("accountNr");
+    let createButton = document.getElementById("createAccountButton");
+    let balance = document.getElementById("balance");
+    //let getBalanceButton = document.getElementById(refreshBalance);
+    createButton.onclick = function () {
+              let requestObject = {
+            'accountNr': newAccountNr.value,
+            'balance': balance.value
+        }
+        let url = "http://localhost:8080/Bank/add/" + newAccountNr.value + "/" + balance.value;
+        let configuration = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            Body: JSON.stringify(requestObject)
+        }
+        fetch(url, configuration);
+        window.location.href = 'New_account.html?accountnr=' + newAccountNr.value;
+    }
+</script>
+</body>
+</html>

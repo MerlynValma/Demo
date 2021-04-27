@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Min</h1>
+a: <input id="minA"> b: <input id="minB">
+<button id="minButton">Min</button>
+<p>
+    Vastus on: <span id="minAnswer"></span>
+<p>
+    <script type="text/javascript">
+        let minA = document.getElementById("minA");
+        let minB = document.getElementById("minB");
+        let minButton = document.getElementById("minButton");
+        minButton.onclick = function () {
+            let minAnswer = document.getElementById("minAnswer");
+            let a = minA.value;
+            let b = minB.value;
+            if (Number(a) < Number(b)) {
+                minAnswer.innerHTML = a;
+            } else {
+                minAnswer.innerHTML = b;
+            }
+        };
+    </script>
+<h1>Max</h1>
+a: <input id="maxA"> b: <input id="maxB">
+<button id="maxButton">Max</button>
+<p>
+    Vastus on: <span id="maxAnswer"></span>
+<p>
+    <script type="text/javascript">
+        let maxA = document.getElementById("maxA");
+        let maxB = document.getElementById("maxB");
+        let maxButton = document.getElementById("maxButton");
+        maxButton.onclick = function () {
+            let minAnswer = document.getElementById("maxAnswer");
+            let a = maxA.value;
+            let b = maxB.value;
+            if (Number(a) > Number(b)) {
+                maxAnswer.innerHTML = a;
+            } else {
+                maxAnswer.innerHTML = b;
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+</head>
+<body>
+<div class="center"> <!--kõik html elemendid peavad olema div´i sees-->
+<h1>Welcome to MBANK!<h1>
+<h2>Insert bank account number: <input id="accountNr"></h2> <!--input id vajalik, et JS kasutada seda välja-->
+<br>
+<button id="getBalanceButton">Check balance</button>
+<span id="balance"></span> <!--span id on tühi tekstiväli, balnce väärtus tuleb JS-->
+<br>
+<br>
+Amount, €: <input id="depositmoney">
+<button id="getMoney">Deposit money</button> <!--button id, etsaada nupp JS tööle-->
+<br>
+<br>
+Amount, €: <input id="withdrawMoney">
+<button id="putMoney">Withdraw money</button>
+<br>
+<br>
+<table border="0">
+    <tr>
+        <td colspan="2"><h2>Transfer money:</h2></td>
+    </tr>
+    <tr>
+        <td>From account:</td>
+        <td><select id="dropdown1"></select></td>
+    </tr>
+    <tr>
+        <td>To account:</td>
+        <td><select id="dropdown2"></select></td>
+    </tr>
+    <tr>
+        <td>Amount, €:</td>
+        <td><input id="balanceTransfer"></td>
+    </tr>
+    <tr>
+    <tr>
+        <td colspan="2">
+            <button id="submit">Submit</button>
+        </td>
+    </tr>
+</table>
+</div>
+<script type="text/javascript">
+    let accountNr = document.getElementById("accountNr"); <!--panen HTML elemendi JS sisse-->
+    let getBalanceButton = document.getElementById("getBalanceButton");
+    let depositMoney = document.getElementById("depositmoney");
+    let depositMoneyButton = document.getElementById("getMoney");
+    let withdrawMoney = document.getElementById("withdrawMoney");
+    let withdrawMoneyButton = document.getElementById("putMoney");
+    let balanceTransfer = document.getElementById("balanceTransfer");
+    let balance = document.getElementById("balance");
+    let submitButton = document.getElementById("submit");
+
+    let dropdown1 = document.getElementById("dropdown1");
+    dropdown1.lenght = 0;
+    let defaultOption1 = document.createElement("option");
+    defaultOption1.text = "Choose bank account";
+    dropdown1.add(defaultOption1);
+    dropdown1.selectedIndex = 0;
+
+    let dropdown2 = document.getElementById("dropdown2");
+    dropdown2.lenght = 0;
+    let defaultOption2 = document.createElement("option");
+    defaultOption2.text = "Choose bank account";
+    dropdown2.add(defaultOption2);
+    dropdown2.selectedIndex = 0;
+
+    fetch("http://localhost:8080/Bank/list")
+        .then(
+            function (response) {
+                response.json().then(function (data) {
+                    let option1;
+                    let option2;
+                    for (let i = 0; i < Object.keys(data).length; i++) {
+                        option1 = document.createElement('option')
+                        option1.text = data[i].accountNr;
+                        option1.value = data[i].accountNr;
+                        option2 = document.createElement('option')
+                        option2.text = data[i].accountNr;
+                        option2.value = data[i].accountNr;
+                        dropdown1.add(option1);
+                        dropdown2.add(option2);
+                    }
+                })
+            })
+    getBalanceButton.onclick = function () { <!--onclick nupp = mingi funktsioon-->
+        fetch("http://localhost:8080/Bank/getBalance/" + accountNr.value) <!--tee käsk-->
+            .then(response => response.text())
+            .then(function (response) {<!--kui tahame mingit vastust saada/tagastada sisu-->
+                try {
+                JSON.parse(response.text())
+                } catch (e) {
+                    balance.innerHTML = response
+                    if (response == "Account is not active!") {
+                        balance.style = "color:red";
+                    } else {
+                        balance.style = "color:black";
+                    }
+                }
+                let obj = JSON.parse(response);
+            balance.innerHTML = obj.message;
+            })
+    }
+    let queryString = window.location.search.substring(1);
+    let varArray = queryString.split("=");
+    if (varArray[0] == "accountnr") {
+        accountNr.value = varArray[1];
+        if (varArray[1] == "undefined") {
+            accountNr.value = "";
+        }
+    }
+    depositMoneyButton.onclick = function () {
+        fetch("http://localhost:8080/Bank/deposit/" + accountNr.value + "/" + depositMoney.value)
+            .then(response => response.text())
+            .then(function (response) { //annab URL´i vastuse, JSON formaadis
+                try {
+                    JSON.parse(response); //proovin JSON´i teha objektideks ja String = Error
+                } catch (e) {
+                    balance.innerHTML = response; //püüdis Errori kinni ehk andmetüüp String, mitte JSON. Inner.HTML on Document Object Model (DOM)
+                    if (response == "Your are out of money!") {
+                        balance.style = "color:red";
+                    } else {
+                        balance.style = "color:green";
+                    }
+                    return ""; //break
+                }
+                let obj = JSON.parse(response); //jõuab siia kui andmetüüp JSON, mitte String
+                balance.innerHTML = obj.message;
+                balance.style = "color:red";
+            })
+    }
+    withdrawMoneyButton.onclick = function () {
+        fetch("http://localhost:8080/Bank/withdraw/" + accountNr.value + "/" + withdrawMoney.value)
+            .then(response => response.text())
+            .then(function (response) {
+                try {
+                    JSON.parse(response);
+                } catch (e) {
+                    balance.innerHTML = response;
+                    if (response == "Your are out of money!") {
+                        balance.style = "color:red";
+                    } else {
+                        balance.style = "color:green";
+                    }
+                    return ""; //break
+                }
+                let obj = JSON.parse(response);
+                balance.innerHTML = obj.message;
+                balance.style = "color:red"
+            })
+    }
+    submitButton.onclick = function () {
+        fetch("http://localhost:8080/Bank/transfer/" + dropdown1.value + "/" + balanceTransfer.value + "/" + dropdown2.value)
+            .then(response => response.text())
+            .then(function (response) {
+                balance.innerHTML = response
+                if (response == "Your are out of money!" || response == "Account is not active!") {
+                    balance.style = "color:red";
+                } else {
+                    balance.style = "color:green";
+                }
+            })
+    }
+</script>
+</body>
+</html>
